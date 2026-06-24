@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Winchester United — Club Calendar</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f4f1eb;
+    font-family: Georgia, serif;
+    color: #1B2347;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: #1B2347;
+    padding: 36px 40px 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    display: block;
+    height: 4px;
+    background: linear-gradient(90deg, #8C1F3F 0%, #C9A227 50%, #8C1F3F 100%);
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+  }
+  .header-logo {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  }
+  .header-text h1 {
+    font-size: 26px;
+    color: #C9A227;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .header-text p {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: rgba(245,240,232,0.6);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* MONTH NAV */
+  .month-nav {
+    background: #fff;
+    border-bottom: 1px solid #e0d9cc;
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .month-nav h2 {
+    font-size: 18px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1B2347;
+  }
+  .month-nav .nav-arrows {
+    display: flex;
+    gap: 12px;
+  }
+  .arrow-btn {
+    background: none;
+    border: 1px solid #C9A227;
+    color: #C9A227;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .arrow-btn:hover { background: #C9A227; color: #1B2347; }
+
+  /* FILTER PILLS */
+  .filters {
+    padding: 20px 40px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    background: #fff;
+    color: #555;
+    transition: all 0.15s;
+  }
+  .pill.active, .pill:hover {
+    background: #1B2347;
+    color: #C9A227;
+    border-color: #1B2347;
+  }
+  .pill.football.active  { background: #1B2347; }
+  .pill.boxing.active    { background: #8C1F3F; border-color: #8C1F3F; color: #fff; }
+  .pill.tennis.active    { background: #2d6a2d; border-color: #2d6a2d; color: #fff; }
+  .pill.swimming.active  { background: #1a5276; border-color: #1a5276; color: #fff; }
+  .pill.concerts.active  { background: #6c3483; border-color: #6c3483; color: #fff; }
+
+  /* EVENTS LIST */
+  .events-container {
+    padding: 0 40px 60px;
+    max-width: 900px;
+  }
+
+  .day-group { margin-bottom: 32px; }
+  .day-label {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #888;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 12px;
+  }
+  .day-label span {
+    color: #1B2347;
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  .event-card {
+    background: #fff;
+    border-left: 4px solid #ccc;
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    transition: box-shadow 0.15s;
+    cursor: pointer;
+  }
+  .event-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+
+  .event-card.football  { border-left-color: #C9A227; }
+  .event-card.boxing    { border-left-color: #8C1F3F; }
+  .event-card.tennis    { border-left-color: #2d6a2d; }
+  .event-card.swimming  { border-left-color: #1a5276; }
+  .event-card.concert   { border-left-color: #6c3483; }
+
+  .event-time {
+    min-width: 80px;
+    padding: 16px 14px;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: #888;
+    text-align: center;
+    border-right: 1px solid #f0ebe0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+  }
+  .event-time .time-start { font-size: 13px; font-weight: bold; color: #1B2347; }
+
+  .event-body {
+    padding: 14px 18px;
+    flex: 1;
+  }
+  .event-body h3 {
+    font-size: 15px;
+    color: #1B2347;
+    margin-bottom: 4px;
+  }
+  .event-body p {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: #888;
+  }
+
+  .event-tag {
+    font-family: Arial, sans-serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 0;
+    align-self: flex-start;
+    margin: 14px 14px 0 0;
+    white-space: nowrap;
+  }
+  .tag-football  { background: #fdf3d0; color: #7a5c00; }
+  .tag-boxing    { background: #fde8ee; color: #8C1F3F; }
+  .tag-tennis    { background: #e6f4e6; color: #2d6a2d; }
+  .tag-swimming  { background: #d6eaf8; color: #1a5276; }
+  .tag-concert   { background: #f5eef8; color: #6c3483; }
+
+  .book-btn {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: #1B2347;
+    color: #C9A227;
+    border: none;
+    padding: 0 20px;
+    cursor: pointer;
+    min-width: 90px;
+    transition: background 0.15s;
+  }
+  .book-btn:hover { background: #C9A227; color: #1B2347; }
+
+  /* FOOTER */
+  .footer {
+    background: #1B2347;
+    padding: 20px 40px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(245,240,232,0.4);
+    text-transform: uppercase;
+    position: relative;
+  }
+  .footer::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, #8C1F3F 0%, #C9A227 50%, #8C1F3F 100%);
+    position: absolute;
+    top: 0; left: 0; right: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <img src="winchester-united.png" alt="Winchester United" class="header-logo">
+  <div class="header-text">
+    <h1>Winchester United</h1>
+    <p>Club Calendar — June 2026</p>
+  </div>
+</div>
+
+<!-- MONTH NAV -->
+<div class="month-nav">
+  <h2>June 2026</h2>
+  <div class="nav-arrows">
+    <button class="arrow-btn">&#8592;</button>
+    <button class="arrow-btn">&#8594;</button>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <div class="pill active">All</div>
+  <div class="pill football">Football</div>
+  <div class="pill boxing">Boxing</div>
+  <div class="pill tennis">Tennis</div>
+  <div class="pill swimming">Swimming</div>
+  <div class="pill concerts">Concerts</div>
+</div>
+
+<!-- EVENTS -->
+<div class="events-container">
+
+  <!-- Saturday 21 -->
+  <div class="day-group">
+    <div class="day-label"><span>Saturday 21</span> &nbsp;June 2026</div>
+
+    <div class="event-card football">
+      <div class="event-time">
+        <div class="time-start">09:00</div>
+        <div>AM</div>
+      </div>
+      <div class="event-body">
+        <h3>Junior Football Tournament — U12 & U15</h3>
+        <p>Main Pitch &nbsp;·&nbsp; Groups stage, knockout rounds, finals</p>
+      </div>
+      <span class="event-tag tag-football">Football</span>
+      <button class="book-btn">Book</button>
+    </div>
+
+    <div class="event-card swimming">
+      <div class="event-time">
+        <div class="time-start">10:00</div>
+        <div>AM</div>
+      </div>
+      <div class="event-body">
+        <h3>Morning Lap Session</h3>
+        <p>Outdoor Pool &nbsp;·&nbsp; Open to all members, lanes 1–4</p>
+      </div>
+      <span class="event-tag tag-swimming">Swimming</span>
+      <button class="book-btn">Book</button>
+    </div>
+
+    <div class="event-card tennis">
+      <div class="event-time">
+        <div class="time-start">14:00</div>
+        <div>PM</div>
+      </div>
+      <div class="event-body">
+        <h3>Club Tennis Championship — Singles</h3>
+        <p>Courts 1 & 2 &nbsp;·&nbsp; Round of 16 fixtures</p>
+      </div>
+      <span class="event-tag tag-tennis">Tennis</span>
+      <button class="book-btn">Book</button>
+    </div>
+
+    <div class="event-card concert">
+      <div class="event-time">
+        <div class="time-start">20:00</div>
+        <div>PM</div>
+      </div>
+      <div class="event-body">
+        <h3>Summer Evening Concert — Jazz & Soul Night</h3>
+        <p>Terrace &nbsp;·&nbsp; Live band, bar open, dress code smart casual</p>
+      </div>
+      <span class="event-tag tag-concert">Concert</span>
+      <button class="book-btn">Book</button>
+    </div>
+  </div>
+
+  <!-- Sunday 22 -->
+  <div class="day-group">
+    <div class="day-label"><span>Sunday 22</span> &nbsp;June 2026</div>
+
+    <div class="event-card boxing">
+      <div class="event-time">
+        <div class="time-start">11:00</div>
+        <div>AM</div>
+      </div>
+      <div class="event-body">
+        <h3>Boxing White-Collar Night — Finals</h3>
+        <p>Main Hall &nbsp;·&nbsp; 6 bouts, members and guests welcome</p>
+      </div>
+      <span class="event-tag tag-boxing">Boxing</span>
+      <button class="book-btn">Book</button>
+    </div>
+
+    <div class="event-card swimming">
+      <div class="event-time">
+        <div class="time-start">14:00</div>
+        <div>PM</div>
+      </div>
+      <div class="event-body">
+        <h3>Junior Swimming Gala</h3>
+        <p>Indoor Pool &nbsp;·&nbsp; Ages 6–16, freestyle and relay events</p>
+      </div>
+      <span class="event-tag tag-swimming">Swimming</span>
+      <button class="book-btn">Book</button>
+    </div>
+
+    <div class="event-card football">
+      <div class="event-time">
+        <div class="time-start">17:00</div>
+        <div>PM</div>
+      </div>
+      <div class="event-body">
+        <h3>5-a-Side Members League — Matchday 8</h3>
+        <p>Astro Pitch &nbsp;·&nbsp; 4 fixtures, round robin format</p>
+      </div>
+      <span class="event-tag tag-football">Football</span>
+      <button class="book-btn">Book</button>
+    </div>
+  </div>
+
+  <!-- Wednesday 25 -->
+  <div class="day-group">
+    <div class="day-label"><span>Wednesday 25</span> &nbsp;June 2026</div>
+
+    <div class="event-card tennis">
+      <div class="event-time">
+        <div class="time-start">09:00</div>
+        <div>AM</div>
+      </div>
+      <div class="event-body">
+        <h3>Ladies Tennis Morning — Doubles</h3>
+        <p>Courts 3 & 4 &nbsp;·&nbsp; Social round-robin, all levels welcome</p>
+      </div>
+      <span class="event-tag tag-tennis">Tennis</span>
+      <button class="book-btn">Book</button>
+    </div>
+
+    <div class="event-card swimming">
+      <div class="event-time">
+        <div class="time-start">18:00</div>
+        <div>PM</div>
+      </div>
+      <div class="event-body">
+        <h3>Evening Fitness Swim</h3>
+        <p>Outdoor Pool &nbsp;·&nbsp; Coached endurance session, intermediate+</p>
+      </div>
+      <span class="event-tag tag-swimming">Swimming</span>
+      <button class="book-btn">Book</button>
+    </div>
+  </div>
+
+  <!-- Friday 27 -->
+  <div class="day-group">
+    <div class="day-label"><span>Friday 27</span> &nbsp;June 2026</div>
+
+    <div class="event-card concert">
+      <div class="event-time">
+        <div class="time-start">19:30</div>
+        <div>PM</div>
+      </div>
+      <div class="event-body">
+        <h3>End-of-Season Members Night — Live Band & Dinner</h3>
+        <p>Grand Hall &nbsp;·&nbsp; Members and one guest, black tie optional</p>
+      </div>
+      <span class="event-tag tag-concert">Concert</span>
+      <button class="book-btn">Book</button>
+    </div>
+
+    <div class="event-card boxing">
+      <div class="event-time">
+        <div class="time-start">21:00</div>
+        <div>PM</div>
+      </div>
+      <div class="event-body">
+        <h3>Boxing Masterclass — Guest Coach Session</h3>
+        <p>Gym &nbsp;·&nbsp; Limited to 20 members, technique and sparring</p>
+      </div>
+      <span class="event-tag tag-boxing">Boxing</span>
+      <button class="book-btn">Book</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Winchester United Sports Club &nbsp;·&nbsp; Members Only
+</div>
+
+</body>
+</html>
